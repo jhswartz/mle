@@ -1,0 +1,19 @@
+MACHINE LANGUAGE ENCODER
+
+  Write machine language with labels and macros.
+
+
+USAGE
+
+  mle < SOURCE > CODE 
+
+
+SEE ALSO
+
+  http://github.com/jhswartz/mli
+  http://github.com/jhswartz/mlx
+
+
+AUTHOR
+
+  Justin Swartz <justin.swartz@risingedge.co.za>
