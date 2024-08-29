@@ -87,8 +87,12 @@ MACRO CODE EXAMPLE
 
 SEE ALSO
 
-  http://github.com/jhswartz/mli
-  http://github.com/jhswartz/mlx
+  EXTENSIONS
+    http://github.com/jhswartz/mle-x86_64
+
+  ACCOMPLICES 
+    http://github.com/jhswartz/mli
+    http://github.com/jhswartz/mlx
 
 
 AUTHOR
