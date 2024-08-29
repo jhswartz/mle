@@ -10,17 +10,16 @@ USAGE
 
 LABELLED CODE EXAMPLE
 
-  $ cat /tmp/true.src << EOF
-Magic:
-	90		# nop
-
-Start:
-	6a 00		# push $EXIT_SUCCESS
-	5f		# pop %rdi
-	6a 3c		# push $SYS_EXIT
-	58		# pop %rax
-	0f 05		# syscall
-EOF
+  $ cat /tmp/true.src
+  Magic:
+  	90		# nop
+  
+  Start:
+  	6a 00		# push $EXIT_SUCCESS
+  	5f		# pop %rdi
+  	6a 3c		# push $SYS_EXIT
+  	58		# pop %rax
+  	0f 05		# syscall
 
   $ mle < /tmp/true.src > /tmp/true
   $ chmod 755 /tmp/true
@@ -38,45 +37,39 @@ EOF
 
 MACRO CODE EXAMPLE
 
-  $ cat /tmp/false.src << EOF
-[ . macro/generic ]
-
-
-# -- Registers ------------------------------------------------------
-
-[ define rax  0 ]
-[ define rdi  7 ]
-
-
-# -- Primitive Instruction Mnemonics --------------------------------
-
-[ macro nop      u8 0x90 ]
-[ macro push8    u8 0x6a $1 ]
-[ macro pop      u8 $((0x58 + $1)) ]
-[ macro syscall  u8 0x0f 05 ]
-
-
-# -- Composite Instruction Mnemonics --------------------------------
-
-[ macro mov8r64   push8 $1; pop $2 ]
-[ macro syscall8  mov8r64 $1 rax; syscall ]
-
-
-# -- Unlucky Numbers ------------------------------------------------
-
-[ define EXIT_FAILURE   1 ]
-[ define SYS_EXIT      60 ]
-
-
-# -- Code -----------------------------------------------------------
-
-Magic:
-	[ nop ]
-
-Start:
-	[ mov8r64 EXIT_FAILURE rdi ]
-	[ syscall8 SYS_EXIT ]
-EOF
+  $ cat /tmp/false.src
+  [ . macro/generic ]
+  
+  # -- Registers ------------------------------------------------------
+  
+  [ define rax  0 ]
+  [ define rdi  7 ]
+  
+  # -- Primitive Instruction Mnemonics --------------------------------
+  
+  [ macro nop      u8 0x90 ]
+  [ macro push8    u8 0x6a $1 ]
+  [ macro pop      u8 $((0x58 + $1)) ]
+  [ macro syscall  u8 0x0f 05 ]
+  
+  # -- Composite Instruction Mnemonics --------------------------------
+  
+  [ macro mov8r64   push8 $1; pop $2 ]
+  [ macro syscall8  mov8r64 $1 rax; syscall ]
+  
+  # -- Unlucky Numbers ------------------------------------------------
+  
+  [ define EXIT_FAILURE   1 ]
+  [ define SYS_EXIT      60 ]
+  
+  # -- Code -----------------------------------------------------------
+  
+  Magic:
+  	[ nop ]
+  
+  Start:
+  	[ mov8r64 EXIT_FAILURE rdi ]
+  	[ syscall8 SYS_EXIT ]
 
   $ mle < /tmp/false.src > /tmp/false
   $ chmod 755 /tmp/false
