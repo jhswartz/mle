@@ -5,7 +5,7 @@ INTERPRET=1
 
 error()
 {
-	printf "${OFFSET}: %s\n" "$1" >&2
+	printf "%08x: %s\n" ${OFFSET} "$1" >&2
 }
 
 byte()
@@ -140,7 +140,7 @@ interpret()
 
 	if ! callable $token
 	then
-		error "unrecognized token"
+		error "unrecognized token: $token"
 		exit 1
 	fi
 
