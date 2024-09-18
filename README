@@ -8,79 +8,105 @@ USAGE
   mle < SOURCE > CODE 
 
 
-LABELLED CODE EXAMPLE
+CORE CODE EXAMPLE
 
-  $ cat /tmp/true.src
+  This example assumes that you have installed mle-amd64.
+
+  $ cat /tmp/pwd.src
+  [ . macro/isa/amd64/core ]
+  
   Magic:
-  	90		# nop
+  	90				# nop
   
   Start:
-  	6a 00		# push $EXIT_SUCCESS
-  	5f		# pop %rdi
-  	6a 3c		# push $SYS_EXIT
-  	58		# pop %rax
-  	0f 05		# syscall
+  	# Allocate 2048 bytes on the stack.
+  	48 31 f6			# xor %rsi, %rsi
+  	66 be 00 08			# mov $2048, %si
+  	48 29 f4			# sub %rsi, %rsp
+  
+  	# getcwd(buffer, 2048);
+  	48 89 e7			# mov %rsp, %rdi
+  	6a 4f				# push SYS_GETCWD
+  	58				# pop %rax
+  	0f 05				# syscall
+  
+  	# Get the buffered string length.
+  	48 31 c0			# xor %rax, %rax
+  	48 31 c9			# xor %rcx, %rcx
+  	48 ff c9			# dec %rcx
+  	f2 ae				# repnz scasb
+  	48 89 ca			# mov %rdx, %rcx
+  	48 f7 d2			# not %rdx
+  
+  	# Replace the NUL terminator with NL.
+  	48 ff cf			# dec %rdi
+  	b0 0a				# mov $'\n', %al
+  	88 07				# mov %al, (rdi)
+  
+  	# write(STDOUT_FILENO, buffer, strlen(buffer))
+  	48 89 e6			# mov %rsp, %rsi
+  	6a 01				# push $STDOUT_FILENO
+  	5f				# pop %rdi
+  	6a 01				# push $SYS_WRITE
+  	58				# pop %rax
+  	0f 05				# syscall
+  
+  	# Deallocate the buffer.
+  	66 81 c4 00 08			# add $2048, %sp
+  
+  	# exit(EXIT_SUCCESS);
+  	6a 00				# push $EXIT_SUCCESS
+  	5f				# pop %rdi
+  	6a 3c				# push $SYS_EXIT
+  	58				# pop %rax
+	0f 05				# syscall
 
-  $ mle < /tmp/true.src > /tmp/true
-  $ chmod 755 /tmp/true
-  $ ls -al /tmp/true
-  -rwxr-xr-x 1 user user 9 Aug 29 19:00 /tmp/true
+  $ ./mle < /tmp/pwd.src > /tmp/pwd
+  $ chmod 755 /tmp/pwd
+  $ ls -al /tmp/pwd
+  -rwxr-xr-x 1 user user 67 Sep 18 04:55 /tmp/pwd
 
-  $ strace /tmp/true
-  execve("/tmp/true", ["/tmp/true"], 0x7ffe6b07ac50 /* 41 vars */) = 0
-  open("/tmp/true", O_RDONLY)                = 3
-  fstat(3, {st_mode=S_IFREG|0755, st_size=9, ...}) = 0
-  mmap(NULL, 9, PROT_READ|PROT_WRITE|PROT_EXEC, MAP_PRIVATE, 3, 0) = 0x7f5805d6f000
+  $ strace /tmp/pwd
+  execve("/tmp/pwd", ["/tmp/pwd"], 0x7fff4193e510 /* 37 vars */) = 0
+  open("/tmp/pwd", O_RDONLY)              = 3
+  fstat(3, {st_mode=S_IFREG|0755, st_size=67, ...}) = 0
+  mmap(NULL, 67, PROT_READ|PROT_WRITE|PROT_EXEC, MAP_PRIVATE, 3, 0) = 0x7f7b2d69d000
+  getcwd("/home/user/src/ml/mle", 2048)   = 22
+  write(1, "/home/user/src/ml/mle\n", 22/home/user/src/ml/mle
+  ) = 22
   exit(0)                                 = ?
   +++ exited with 0 +++
 
 
 MACRO CODE EXAMPLE
 
+  This example also assumes that you have installed mle-amd64.
+
   $ cat /tmp/false.src
   [ . macro/generic ]
+  [ . macro/isa/amd64/instructions ]
   
-  # -- Registers ------------------------------------------------------
-  
-  [ define rax  0 ]
-  [ define rdi  7 ]
-  
-  # -- Primitive Instruction Mnemonics --------------------------------
-  
-  [ macro nop      u8 0x90 ]
-  [ macro push8    u8 0x6a $1 ]
-  [ macro pop      u8 $((0x58 + $1)) ]
-  [ macro syscall  u8 0x0f 05 ]
-  
-  # -- Composite Instruction Mnemonics --------------------------------
-  
-  [ macro mov8r64   push8 $1; pop $2 ]
-  [ macro syscall8  mov8r64 $1 rax; syscall ]
-  
-  # -- Unlucky Numbers ------------------------------------------------
-  
-  [ define EXIT_FAILURE   1 ]
+  [ define EXIT_FAILURE  1  ]
   [ define SYS_EXIT      60 ]
   
-  # -- Code -----------------------------------------------------------
-  
   Magic:
-  	[ nop ]
+        [ nop ]
   
   Start:
-  	[ mov8r64 EXIT_FAILURE rdi ]
-  	[ syscall8 SYS_EXIT ]
+        [ movq_i8r  EXIT_FAILURE  rdi ]
+        [ movq_i8r  SYS_EXIT      rax ]
+        [ syscall ]
 
-  $ mle < /tmp/false.src > /tmp/false
+  $ ./mle < /tmp/false.src > /tmp/false
   $ chmod 755 /tmp/false
   $ ls -al /tmp/false
-  -rwxr-xr-x 1 user user 9 Aug 29 18:57 /tmp/false
+  -rwxr-xr-x 1 user user 9 Sep 18 05:13 /tmp/false
 
   $ strace /tmp/false
-  execve("/tmp/false", ["/tmp/false"], 0x7ffd5cde5a70 /* 41 vars */) = 0
+  execve("/tmp/false", ["/tmp/false"], 0x7ffcb2248610 /* 37 vars */) = 0
   open("/tmp/false", O_RDONLY)            = 3
   fstat(3, {st_mode=S_IFREG|0755, st_size=9, ...}) = 0
-  mmap(NULL, 9, PROT_READ|PROT_WRITE|PROT_EXEC, MAP_PRIVATE, 3, 0) = 0x7f4a62d5c000
+  mmap(NULL, 9, PROT_READ|PROT_WRITE|PROT_EXEC, MAP_PRIVATE, 3, 0) = 0x7f7048bb8000
   exit(1)                                 = ?
   +++ exited with 1 +++
 
