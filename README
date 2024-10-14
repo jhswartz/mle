@@ -8,15 +8,20 @@ USAGE
   mle < SOURCE > CODE 
 
 
-CORE CODE EXAMPLE
+INSTALLATION
 
-  This example assumes that you have installed mle-amd64.
+  # cp mle /usr/bin/mle
+  # chown root:root /usr/bin/mle
+  # chmod 755 /usr/bin/mle
 
-  $ cat /tmp/pwd.src
-  [ . macro/isa/amd64/core ]
-  
+
+EXAMPLE
+
+  This example produces an mli binary for a Linux/amd64 target.
+
+  $ cat demo/amd64-linux-pwd.src
   Magic:
-  	90				# nop
+  	90
   
   Start:
   	# Allocate 2048 bytes on the stack.
@@ -61,64 +66,29 @@ CORE CODE EXAMPLE
   	58				# pop %rax
 	0f 05				# syscall
 
-  $ ./mle < /tmp/pwd.src > /tmp/pwd
+
+  $ mle < demo/amd64-linux-pwd.src > /tmp/pwd
   $ chmod 755 /tmp/pwd
   $ ls -al /tmp/pwd
-  -rwxr-xr-x 1 user user 67 Sep 18 04:55 /tmp/pwd
+  -rwxr-xr-x 1 user user 67 Oct 14 21:46 /tmp/pwd
 
-  $ strace /tmp/pwd
-  execve("/tmp/pwd", ["/tmp/pwd"], 0x7fff4193e510 /* 37 vars */) = 0
-  open("/tmp/pwd", O_RDONLY)              = 3
+  $ cd /tmp
+  $ strace ./pwd
+  execve("./pwd", ["./pwd"], 0x7fffc10fa780 /* 47 vars */) = 0
+  open("./pwd", O_RDONLY)                 = 3
   fstat(3, {st_mode=S_IFREG|0755, st_size=67, ...}) = 0
-  mmap(NULL, 67, PROT_READ|PROT_WRITE|PROT_EXEC, MAP_PRIVATE, 3, 0) = 0x7f7b2d69d000
-  getcwd("/home/user/src/ml/mle", 2048)   = 22
-  write(1, "/home/user/src/ml/mle\n", 22/home/user/src/ml/mle
-  ) = 22
+  mmap(NULL, 67, PROT_READ|PROT_WRITE|PROT_EXEC, MAP_PRIVATE, 3, 0) = 0x7fcf656f3000
+  getcwd("/tmp", 2048)                    = 5
+  write(1, "/tmp\n", 5/tmp
+  )                   = 5
   exit(0)                                 = ?
   +++ exited with 0 +++
 
 
-MACRO CODE EXAMPLE
-
-  This example also assumes that you have installed mle-amd64.
-
-  $ cat /tmp/false.src
-  [ . macro/generic ]
-  [ . macro/isa/amd64/instructions ]
-  
-  [ define EXIT_FAILURE  1  ]
-  [ define SYS_EXIT      60 ]
-  
-  Magic:
-        [ nop ]
-  
-  Start:
-        [ movq_i8r  EXIT_FAILURE  rdi ]
-        [ movq_i8r  SYS_EXIT      rax ]
-        [ syscall ]
-
-  $ ./mle < /tmp/false.src > /tmp/false
-  $ chmod 755 /tmp/false
-  $ ls -al /tmp/false
-  -rwxr-xr-x 1 user user 9 Sep 18 05:13 /tmp/false
-
-  $ strace /tmp/false
-  execve("/tmp/false", ["/tmp/false"], 0x7ffcb2248610 /* 37 vars */) = 0
-  open("/tmp/false", O_RDONLY)            = 3
-  fstat(3, {st_mode=S_IFREG|0755, st_size=9, ...}) = 0
-  mmap(NULL, 9, PROT_READ|PROT_WRITE|PROT_EXEC, MAP_PRIVATE, 3, 0) = 0x7f7048bb8000
-  exit(1)                                 = ?
-  +++ exited with 1 +++
-
-
 SEE ALSO
 
-  EXTENSIONS
-    http://github.com/jhswartz/mle-amd64
-
-  ACCOMPLICES 
-    http://github.com/jhswartz/mli
-    http://github.com/jhswartz/mlx
+  http://github.com/jhswartz/mli
+  http://github.com/jhswartz/mle-amd64
 
 
 AUTHOR
