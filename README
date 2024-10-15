@@ -10,7 +10,7 @@ USAGE
 
 INSTALLATION
 
-  # cp mle /usr/bin/mle
+  # cp -a mle /usr/bin/mle
   # chown root:root /usr/bin/mle
   # chmod 755 /usr/bin/mle
 
@@ -88,7 +88,7 @@ EXAMPLE
 SEE ALSO
 
   http://github.com/jhswartz/mli
-  http://github.com/jhswartz/mle-amd64
+  http://github.com/jhswartz/mle-x86
 
 
 AUTHOR
