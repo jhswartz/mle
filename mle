@@ -217,4 +217,14 @@ encode()
 	evaluate $TOKENS
 }
 
-encode
+main()
+{
+	if [ $# -gt 0 ]
+	then
+		exec 0<$1
+	fi
+
+	encode
+}
+
+main "$@"
