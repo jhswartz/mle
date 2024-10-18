@@ -223,4 +223,7 @@ main()
 	encode
 }
 
-main "$@"
+if [ $(basename $0) = "mle" ]
+then
+	main "$@"
+fi
