@@ -12,11 +12,7 @@ error()
 
 byte()
 {
-	if [ $PASS -eq 2 ]
-	then
-		printf $(printf "\%03o" $(($1 & 0xff)))
-	fi
-
+	printf $(printf "\%03o" $(($1 & 0xff)))
 	OFFSET=$((OFFSET + 1))
 }
 
@@ -206,7 +202,7 @@ encode()
 
 	while read line
 	do
-		evaluate $line
+		evaluate $line > /dev/null
 	done
 
 	MACROS="macro define resolve ."
