@@ -79,12 +79,6 @@ define()
 
 resolve()
 {
-	if [ $PASS -eq 1 ]
-	then
-		printf 0
-		return
-	fi
-
 	local token=$1
 
 	set -- $LABELS
