@@ -96,7 +96,7 @@ resolve()
 		fi
 	done
 
-	printf $token
+	printf 0
 }
 
 label()
