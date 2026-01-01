@@ -1,6 +1,6 @@
 MACHINE LANGUAGE ENCODER
 
-  Write machine language with labels and macros.
+  A target-agnostic machine language encoder with labels and macros.
 
 
 USAGE
