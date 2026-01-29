@@ -223,9 +223,20 @@ encode()
 	evaluate $TOKENS
 }
 
+map()
+{
+	set -- $LABELS
+
+	while [ $# -ge 2 ]
+	do
+		printf "%08x %s\n" "$2" "$1"
+		shift 2
+	done > $MAP
+}
+
 usage()
 {
-	printf "usage: mle [-o OUTPUT] [INPUT]\n"
+	printf "usage: mle [-o OUTPUT] [-m MAP] [INPUT]\n"
 }
 
 main()
@@ -245,6 +256,17 @@ main()
 			fi
 
 			OUTPUT=$2
+			shift 2
+			;;
+
+		("-m")
+			if [ $# -eq 1 ]
+			then
+				usage
+				return 1
+			fi
+
+			MAP=$2
 			shift 2
 			;;
 
@@ -273,6 +295,11 @@ main()
 	fi
 
 	encode
+
+	if [ -n "$MAP" ]
+	then
+		map
+	fi
 }
 
 if [ $(basename $0) = "mle" ]
