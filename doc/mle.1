@@ -1,0 +1,124 @@
+.TH MLE 1 "January 2026" "MLE" "General Commands Manual"
+
+.SH NAME
+mle \- target-agnostic machine language encoder
+
+.SH SYNOPSIS
+.B mle
+< \fIINPUT\fR > \fIOUTPUT\fR
+.br
+.B mle
+[\fB-o\fR \fIOUTPUT\fR]
+[\fB-m\fR \fIMAP\fR]
+[\fIINPUT\fR]
+
+.SH DESCRIPTION
+.B mle
+is a standalone shell script that encodes machine language from a text-based source format into binary. It operates as a generic encoder supporting hexadecimal byte literals, labels, and macros. This makes \fBmle\fR suitable for generating shellcode, flat binaries, or custom object formats.
+.PP
+The encoder processes input in two passes: the first pass calculates label offsets and records definitions, while the second pass performs the final binary output.
+
+.SH OPTIONS
+.TP
+.BI \-o " OUTPUT"
+.br
+Write the generated binary to the specified \fIOUTPUT\fR file. If this option is specified, \fBmle\fR will also attempt to grant permission bits (0755) to the output file. If omitted, output is written to standard output.
+.TP
+.BI \-m " MAP"
+.br
+Dump a plain-text map of offset/label pairs to the specified \fIMAP\fR file. Refer to \fBshelf(1)\fR for information about how to use the symbol map to generate a symbol table in an ELF relocatable object which can be fed to gdb's \fBadd-symbol-file\fR command.
+.TP
+.BI \-h
+.br
+Display usage information.
+
+.SH SYNTAX
+The \fBmle\fR source format consists of whitespace-separated tokens.
+.TP
+\fBHexadecimal Literals\fR
+Two-character hexadecimal strings, such as any value from \fB00\fR to \fBff\fR, are encoded directly as bytes.
+.TP
+\fBOffset Labels\fR
+Tokens ending with a colon, such as \fBStart:\fR, are treated as labels. They assign the current byte offset to the specified label within an internal symbol map. Labels may feature letters, numbers and some punctuation. 
+.TP
+\fBMacro Expansion\fR
+Tokens enclosed in brackets, like \fB[ macro u64 u64le '$@' ]\fR, are interpreted to execute internal functions or user-defined macros.
+.TP
+\fBCommentary\fR
+\fB#\fR initiates a comment. The rest of the line is ignored.
+
+.SH BUILT-IN MACROS
+The following macros are available within the interpreter context:
+.TP
+\fBu8\fR \fIVALUE\fR ...
+Encodes one or more values as 8-bit unsigned integers.
+.TP
+\fBu16le\fR | \fBu16be\fR \fIVALUE\fR ...
+Encodes values as 16-bit integers in little-endian (le) or big-endian (be) format.
+.TP
+\fBu32le\fR | \fBu32be\fR \fIVALUE\fR ...
+Encodes values as 32-bit integers in little-endian (le) or big-endian (be) format.
+.TP
+\fBu64le\fR | \fBu64be\fR \fIVALUE\fR ...
+Encodes values as 64-bit integers in little-endian (le) or big-endian (be) format.
+.TP
+\fBresolve\fR \fILABEL\fR
+Outputs the calculated offset of a previously defined \fILABEL\fR.
+.TP
+\fBdefine\fR \fINAME VALUE\fR
+Sets an internal variable \fINAME\fR to \fIVALUE\fR.
+.TP
+\fBmacro\fR \fINAME BODY\fR
+Defines a new macro \fINAME\fR.
+
+.SH FILES
+.TP
+.B /usr/share/mle/
+Default search path for external macro definitions.
+
+.SH EXAMPLE
+Generate a simple \fBmli/amd64\fR executable that prints the current working directory.
+
+.nf
+$ cd /tmp
+$ cat > pwd.src << EOF
+Magic:
+        90
+
+Start:
+        # getcwd(directory, 2048);
+        54 5f                             # mov rsp rdi
+        66 be 00 08                       # mov 2048 si
+        6a 4f 58                          # mov SYS_GETCWD rax
+        0f 05                             # syscall
+
+        # Replace the NUL terminator with LF.
+        c6 44 07 ff 0a                    # mov '\\n' (rdi + rax - 1)
+
+        # write(STDOUT_FILENO, directory, strlen(directory));
+        92                                # xchg eax edx
+        57 5e                             # mov rdi rsi
+        6a 01 5f                          # mov STDOUT_FILENO rdi
+        57 58                             # mov SYS_WRITE rax
+        0f 05                             # syscall
+
+        # exit(EXIT_SUCCESS);
+        31 ff                             # mov EXIT_SUCCESS rdi
+        b0 3c                             # mov SYS_EXIT rax
+        0f 05                             # syscall
+EOF
+
+$ mle -o pwd pwd.src
+$ ls -al pwd
+-rwxr-xr-x 1 user user 33 Dec 31 02:01 pwd
+
+$ ./pwd
+/tmp
+.fi
+
+.SH SEE ALSO
+.BR shelf (1),
+.BR mli (1)
+
+.SH AUTHOR
+Justin Swartz <justin.swartz@risingedge.co.za>
