@@ -1,0 +1,59 @@
+#!/bin/sh
+
+PROGRAM="mle"
+MANUAL="mle.1"
+
+PREFIX="${PREFIX:-/usr/local}"
+PREFIX_BIN_DIR="${PREFIX}/bin"
+PREFIX_MAN_DIR="${PREFIX}/share/man/man1"
+
+set -e
+
+usage()
+{
+	printf "usage: setup {install|uninstall}\n"
+}
+
+install()
+{
+	set -x
+
+	mkdir -p "${PREFIX_BIN_DIR}"
+	cp "src/${PROGRAM}" "${PREFIX_BIN_DIR}/"
+
+	mkdir -p "${PREFIX_MAN_DIR}"
+	cp "doc/${MANUAL}" "${PREFIX_MAN_DIR}/"
+}
+
+uninstall()
+{
+	set -x
+	rm -f "${PREFIX_BIN_DIR}/${PROGRAM}" "${PREFIX_MAN_DIR}/${MANUAL}"
+}
+
+main()
+{
+	case $# in
+	(1)
+		case $1 in
+		("install")
+			install
+			;;
+
+		("uninstall")
+			uninstall
+			;;
+
+		(*)
+			usage
+			;;
+		esac
+		;;
+
+	(*)
+		usage
+		;;
+	esac
+}
+
+main "$@"
