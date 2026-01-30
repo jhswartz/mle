@@ -291,7 +291,6 @@ main()
 	if [ -n "$OUTPUT" ]
 	then
 		exec 1>"$OUTPUT"
-		chmod 755 "$OUTPUT"
 	fi
 
 	encode

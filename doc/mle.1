@@ -14,7 +14,7 @@ mle \- target-agnostic machine language encoder
 
 .SH DESCRIPTION
 .B mle
-is a standalone shell script that encodes machine language from a text-based source format into binary. It operates as a generic encoder supporting hexadecimal byte literals, labels, and macros. This makes \fBmle\fR suitable for generating shellcode, flat binaries, or custom object formats.
+is a standalone shell script that encodes machine language from a text-based source format into raw data. It operates as a generic encoder supporting hexadecimal byte literals, labels, and macros. This makes \fBmle\fR suitable for generating shellcode, flat binaries, or custom object formats.
 .PP
 The encoder processes input in two passes: the first pass calculates label offsets and records definitions, while the second pass performs the final binary output.
 
@@ -22,7 +22,7 @@ The encoder processes input in two passes: the first pass calculates label offse
 .TP
 .BI \-o " OUTPUT"
 .br
-Write the generated binary to the specified \fIOUTPUT\fR file. If this option is specified, \fBmle\fR will also attempt to grant permission bits (0755) to the output file. If omitted, output is written to standard output.
+Write the generated binary to the specified \fIOUTPUT\fR file. If omitted, output is written to standard output.
 .TP
 .BI \-m " MAP"
 .br
@@ -77,7 +77,7 @@ Defines a new macro \fINAME\fR.
 Default search path for external macro definitions.
 
 .SH EXAMPLE
-Generate a simple \fBmli/amd64\fR executable that prints the current working directory.
+Generate a simple \fBmli-amd64\fR executable that prints the current working directory.
 
 .nf
 $ cd /tmp
@@ -109,6 +109,8 @@ Start:
 EOF
 
 $ mle -o pwd pwd.src
+$ chmod 755 pwd
+
 $ ls -al pwd
 -rwxr-xr-x 1 user user 33 Dec 31 02:01 pwd
 
