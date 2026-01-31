@@ -1,6 +1,7 @@
 #!/bin/sh
 
-PATH=/usr/share/mle:${PATH}
+PREFIX="${PREFIX:-/usr/local}"
+PATH="${PREFIX}/share/mle:${PATH}"
 
 ENCODE=0
 INTERPRET=1
