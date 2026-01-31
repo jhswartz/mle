@@ -9,10 +9,10 @@ SYNOPSIS
 
 DESCRIPTION
        mle  is  a standalone shell script that encodes machine language from a
-       text-based source format into binary. It operates as a generic  encoder
-       supporting  hexadecimal  byte  literals, labels, and macros. This makes
-       mle suitable for generating shellcode, flat binaries, or custom  object
-       formats.
+       text-based source format into raw data. It operates as  a  generic  en‐
+       coder  supporting  hexadecimal  byte literals, labels, and macros. This
+       makes mle suitable for generating shellcode, flat binaries,  or  custom
+       object formats.
 
        The  encoder  processes  input in two passes: the first pass calculates
        label offsets and records definitions, while the second  pass  performs
@@ -81,11 +81,12 @@ BUILT-IN MACROS
               Defines a new macro NAME.
 
 FILES
-       /usr/share/mle/
-              Default search path for external macro definitions.
+       /usr/local/share/mle/
+              Default search path for external  macro  definitions,  unless  a
+              custom installation PREFIX is declared.
 
 EXAMPLE
-       Generate a simple mli-amd64 executable that prints the current  working
+       Generate  a simple mli-amd64 executable that prints the current working
        directory.
 
        $ cd /tmp
